@@ -1,5 +1,5 @@
 from wsgiref import validate
-import torch, os, datetime, copy, json, scipy
+import torch, os, datetime, copy, json, scipy, cv2
 import numpy as np
 
 from model.model import parsingNet
@@ -17,15 +17,20 @@ from utils.common import get_work_dir, get_logger
 import time
 from IPython import embed
 
+color_list = [(0,0,225), (255,0,0), (0,225,0), (255,0,225), (255,255,225), (0,255,255), (255,255,0), (125,255,255)]
+thickness_list = [1, 3, 5, 7, 9, 11, 13, 15]
+thickness_list.reverse()
+
 def inference(net, data_label):
 
-    img, cls_label, _ = data_label
+    img, cls_label, _, _, _ = data_label
     img, cls_label = img.cuda(), cls_label.long().cuda()
     cls_out = net(img)
     return {'cls_out': cls_out, 'cls_label': cls_label}
 
 def resolve_val_data(results):
-    # (batch_size, num_gridding, num_cls_per_lane, num_of_lanes)
+    # input: (batch_size, num_gridding, num_cls_per_lane, num_of_lanes)
+    # output: (batch_size, num_cls_per_lane, num_of_lanes)
     results['cls_out'] = torch.argmax(results['cls_out'], dim=1)
     return results
 
@@ -46,7 +51,6 @@ def calc_loss(loss_dict, results, logger, global_step):
 
         loss += loss_cur * loss_dict['weight'][i]
     return loss
-
 
 def train(net, train_loader, loss_dict, optimizer, scheduler, logger, epoch, metric_dict):
     dist_print('*****************   Training   ***********************')
@@ -84,8 +88,7 @@ def train(net, train_loader, loss_dict, optimizer, scheduler, logger, epoch, met
                                     **kwargs)
         t_data_0 = time.time()
 
-
-def validate(net, val_loader, logger, metric_dict):
+def validate(net, val_loader, logger, metric_dict, savefig=[]):
     dist_print('*****************   Validating   ***********************')
     net.train(mode=False)
     progress_bar = dist_tqdm(val_loader)
@@ -98,10 +101,29 @@ def validate(net, val_loader, logger, metric_dict):
         global_step = b_idx
 
         results = inference(net, data_label)
-        pred = [grid_2_inter(out, cfg.griding_num) for out in results['cls_out']]
+        preds_inter = [grid_2_inter(out, cfg.griding_num) for out in results['cls_out']]
         # print(pred)
         gt = data_label[-1].cpu().numpy()
         # print(gt)
+        
+        if len(savefig)!=0:
+            for idx, item in enumerate(data_label[-1]):
+                vis = cv2.resize(cv2.imread(os.path.join(savefig[0], item)), (1280, 720))
+                vis_mask = np.zeros_like(vis).astype(np.uint8)
+                
+                for i in range(preds_inter[idx].shape[0]):
+                    points = [[int(x),int(y)] for (x,y) in zip(preds_inter[idx][i], raildb_row_anchor) if x>=0]
+                    cv2.polylines(vis, (np.asarray([points])).astype(np.int32), False, color_list[i], thickness=thickness_list[i])
+                    cv2.polylines(vis_mask, (np.asarray([points])).astype(np.int32), False, color_list[i], thickness=thickness_list[i])
+
+
+                vis_path = os.path.join(savefig[0], 'row_based/vis', item).replace('pic', savefig[1])
+                if not os.path.exists(os.path.dirname(vis_path)): os.makedirs(os.path.dirname(vis_path))
+                cv2.imwrite(vis_path, vis)
+
+                pred_path = os.path.join(savefig[0], 'row_based/pred', item).replace('pic', savefig[1])
+                if not os.path.exists(os.path.dirname(pred_path)): os.makedirs(os.path.dirname(pred_path))
+                cv2.imwrite(pred_path, vis)
 
         results = resolve_val_data(results)
         update_metrics(metric_dict, results)
@@ -117,7 +139,7 @@ def validate(net, val_loader, logger, metric_dict):
                                     data_time = '%.3f' % float(t_data_1 - t_data_0), 
                                     )
         
-        preds.append(pred)
+        preds.append(preds_inter)
         gts.append(gt)
 
     preds = np.concatenate(preds); gts = np.concatenate(gts)
@@ -197,25 +219,25 @@ if __name__ == "__main__":
         if acc > best_acc: best_acc, best_epoch, best_model = acc, epoch, copy.deepcopy(net)
         save_model(net, optimizer, epoch, work_dir, distributed)
     dist_print('*************    validate all      ***************')
-    validate(best_model, val_loader, logger, metric_dict)
+    validate(best_model, val_loader, logger, metric_dict, savefig=[cfg.data_root, 'all'])
     dist_print('*************    validate sun      ***************')
-    validate(best_model, val_sun_loader, logger, metric_dict)
+    validate(best_model, val_sun_loader, logger, metric_dict, savefig=[cfg.data_root, 'sun'])
     dist_print('*************    validate rain      ***************')
-    validate(best_model, val_rain_loader, logger, metric_dict)
+    validate(best_model, val_rain_loader, logger, metric_dict, savefig=[cfg.data_root, 'rain'])
     dist_print('*************    validate night      ***************')
-    validate(best_model, val_night_loader, logger, metric_dict)
+    validate(best_model, val_night_loader, logger, metric_dict, savefig=[cfg.data_root, 'night'])
     dist_print('*************    validate line      ***************')
-    validate(best_model, val_line_loader, logger, metric_dict)
+    validate(best_model, val_line_loader, logger, metric_dict, savefig=[cfg.data_root, 'line'])
     dist_print('*************    validate cross      ***************')
-    validate(best_model, val_cross_loader, logger, metric_dict)
+    validate(best_model, val_cross_loader, logger, metric_dict, savefig=[cfg.data_root, 'cross'])
     dist_print('*************    validate curve      ***************')
-    validate(best_model, val_curve_loader, logger, metric_dict)
+    validate(best_model, val_curve_loader, logger, metric_dict, savefig=[cfg.data_root, 'curve'])
     dist_print('*************    validate slope      ***************')
-    validate(best_model, val_slope_loader, logger, metric_dict)
+    validate(best_model, val_slope_loader, logger, metric_dict, savefig=[cfg.data_root, 'slope'])
     dist_print('*************    validate near      ***************')
-    validate(best_model, val_near_loader, logger, metric_dict)
+    validate(best_model, val_near_loader, logger, metric_dict, savefig=[cfg.data_root, 'near'])
     dist_print('*************    validate far      ***************')
-    validate(best_model, val_far_loader, logger, metric_dict)
+    validate(best_model, val_far_loader, logger, metric_dict, savefig=[cfg.data_root, 'far'])
     logger.close()
     dist_print(best_acc, best_epoch)
     if is_main_process(): torch.save(best_model.state_dict(), os.path.join(work_dir, 'best_{:.3f}.pth'.format(best_acc)))

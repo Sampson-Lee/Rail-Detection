@@ -19,7 +19,7 @@ warmup_iters = 100
 
 # NETWORK
 backbone = '18'
-griding_num = 400
+griding_num = 100
 cls_num_per_lane = 52
 
 # EXP
