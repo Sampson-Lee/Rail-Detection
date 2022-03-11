@@ -36,7 +36,7 @@ class LaneTestDataset(torch.utils.data.Dataset):
         self.pd_reader = pd_reader.reindex(index=rd_ind)
     
         len_image = int(len(self.pd_reader)*0.2)
-        self.pd_reader = self.pd_reader.loc[len(self.pd_reader)-len_image:]
+        self.pd_reader = self.pd_reader.iloc[len(self.pd_reader)-len_image:]
         if self.type != 'all': self.img_list = list(self.pd_reader['name'][self.pd_reader[self.type].astype(bool)])
         else: self.img_list = list(self.pd_reader['name'])
         print(str(self.type) + ' has {} testing'.format(len(self.img_list)))
