@@ -1,9 +1,7 @@
 import torch
 import time, sys
 import numpy as np
-sys.path.append("..")
-# from model.model import parsingNet
-from segmentation.model_seg import parsingNet
+from model_seg import parsingNet
 
 torch.backends.cudnn.benchmark = True
 net = parsingNet(pretrained = False, backbone='18', cls_dim=(100, 52, 4)).cuda()

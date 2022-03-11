@@ -17,7 +17,7 @@ class conv_bn_relu(torch.nn.Module):
         return x
 
 class parsingNet(torch.nn.Module):
-    def __init__(self, size=(288, 800), pretrained=True, backbone='50', cls_dim=(100, 56, 4)):
+    def __init__(self, size=(288, 800), pretrained=True, backbone='50', cls_dim=(100, 52, 4)):
         # cls_dim: (num_gridding, num_cls_per_lane, num_of_lanes)
 
         super(parsingNet, self).__init__()

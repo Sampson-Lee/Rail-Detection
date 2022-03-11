@@ -77,7 +77,7 @@ class SegmentationHead(torch.nn.Module):
         return x
         
 class parsingNet(torch.nn.Module):
-    def __init__(self, size=(288, 800), pretrained=True, backbone='50', cls_dim=(37, 10, 4), use_aux=False):
+    def __init__(self, size=(288, 800), pretrained=True, backbone='50', cls_dim=(37, 10, 4)):
         super(parsingNet, self).__init__()
 
         self.size = size
