@@ -83,7 +83,54 @@ if __name__ == "__main__":
         transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
     ])
 
+    cfg.type = 'all'
     dataset = LaneTestDataset(cfg.data_root, cfg.data_root+'meta.csv', img_transform = img_transforms, type=cfg.type)
     loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle = False, num_workers=1)
     deploy_images(loader, cfg)
+
+    cfg.type = 'sun'
+    dataset = LaneTestDataset(cfg.data_root, cfg.data_root+'meta.csv', img_transform = img_transforms, type=cfg.type)
+    loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle = False, num_workers=1)
+    deploy_images(loader, cfg)
+
+    cfg.type = 'rain'
+    dataset = LaneTestDataset(cfg.data_root, cfg.data_root+'meta.csv', img_transform = img_transforms, type=cfg.type)
+    loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle = False, num_workers=1)
+    deploy_images(loader, cfg)
+
+    cfg.type = 'night'
+    dataset = LaneTestDataset(cfg.data_root, cfg.data_root+'meta.csv', img_transform = img_transforms, type=cfg.type)
+    loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle = False, num_workers=1)
+    deploy_images(loader, cfg)
+
+    cfg.type = 'line'
+    dataset = LaneTestDataset(cfg.data_root, cfg.data_root+'meta.csv', img_transform = img_transforms, type=cfg.type)
+    loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle = False, num_workers=1)
+    deploy_images(loader, cfg)
+
+    cfg.type = 'cross'
+    dataset = LaneTestDataset(cfg.data_root, cfg.data_root+'meta.csv', img_transform = img_transforms, type=cfg.type)
+    loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle = False, num_workers=1)
+    deploy_images(loader, cfg)
+
+    cfg.type = 'curve'
+    dataset = LaneTestDataset(cfg.data_root, cfg.data_root+'meta.csv', img_transform = img_transforms, type=cfg.type)
+    loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle = False, num_workers=1)
+    deploy_images(loader, cfg)
+
+    cfg.type = 'slope'
+    dataset = LaneTestDataset(cfg.data_root, cfg.data_root+'meta.csv', img_transform = img_transforms, type=cfg.type)
+    loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle = False, num_workers=1)
+    deploy_images(loader, cfg)
+
+    cfg.type = 'near'
+    dataset = LaneTestDataset(cfg.data_root, cfg.data_root+'meta.csv', img_transform = img_transforms, type=cfg.type)
+    loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle = False, num_workers=1)
+    deploy_images(loader, cfg)
+
+    cfg.type = 'far'
+    dataset = LaneTestDataset(cfg.data_root, cfg.data_root+'meta.csv', img_transform = img_transforms, type=cfg.type)
+    loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle = False, num_workers=1)
+    deploy_images(loader, cfg)
+
 # python deploy.py configs/raildb.py --test_model /home/ssd7T/lxpData/rail/log/20220306_103237_lr_4e-04_b_64test/best_0.926.pth
