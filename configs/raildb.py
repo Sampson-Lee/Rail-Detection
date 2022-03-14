@@ -36,4 +36,4 @@ test_model = '/home/ssd7T/lxpData/rail/log/test_model.pth'
 test_work_dir = '/home/ssd7T/lxpData/rail/test/'
 
 num_lanes = 4
-type = 'all'
+type = 'cross'

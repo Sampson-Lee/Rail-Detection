@@ -26,7 +26,7 @@ def grid_2_inter(out, griding_num):
         out_i = out_loc[:,i]
         lane = [int(round((loc + 0.5) * 1280.0 / (griding_num - 1))) if loc != griding_num else -2 for loc in out_i]
         lanes.append(lane)
-    return lanes
+    return np.array(lanes)
 
 def mask_2_inter(mask, row_anchor, num_lanes=4):
 

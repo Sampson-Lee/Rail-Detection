@@ -103,7 +103,7 @@ def validate(net, val_loader, logger, metric_dict, savefig=[]):
         results = inference(net, data_label)
         preds_inter = [grid_2_inter(out, cfg.griding_num) for out in results['cls_out']]
         # print(pred)
-        gt = data_label[-1].cpu().numpy()
+        gt = data_label[2].cpu().numpy()
         # print(gt)
         
         if len(savefig)!=0:
@@ -115,7 +115,6 @@ def validate(net, val_loader, logger, metric_dict, savefig=[]):
                     points = [[int(x),int(y)] for (x,y) in zip(preds_inter[idx][i], raildb_row_anchor) if x>=0]
                     cv2.polylines(vis, (np.asarray([points])).astype(np.int32), False, color_list[i], thickness=thickness_list[i])
                     cv2.polylines(vis_mask, (np.asarray([points])).astype(np.int32), False, color_list[i], thickness=thickness_list[i])
-
 
                 vis_path = os.path.join(savefig[0], 'row_based/vis', item).replace('pic', savefig[1])
                 if not os.path.exists(os.path.dirname(vis_path)): os.makedirs(os.path.dirname(vis_path))

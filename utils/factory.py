@@ -25,7 +25,7 @@ def get_scheduler(optimizer, cfg, iters_per_epoch):
         raise NotImplementedError
     return scheduler
 
-def get_loss_dict():
+def get_loss_dict(cfg):
 
     loss_dict = {
         'name': ['cls_loss', ],
@@ -36,7 +36,7 @@ def get_loss_dict():
 
     return loss_dict
 
-def get_loss_dict_seg():
+def get_loss_dict_seg(cfg):
 
     loss_dict = {
         'name': ['seg_loss', ],
