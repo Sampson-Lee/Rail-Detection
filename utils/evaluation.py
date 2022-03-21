@@ -47,7 +47,7 @@ def mask_2_inter(mask, row_anchor, num_lanes=4):
 
 
 class LaneEval(object):
-    pixel_thresh = 20
+    pixel_thresh = 10
     pt_thresh = 0.85
 
     @staticmethod
