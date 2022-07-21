@@ -1,13 +1,24 @@
 # Railroad-Detection
-Rail detection, essential for railroad anomaly detection, aims to identify the railroad region in video frames. Although various studies on rail detection exist, neither an open benchmark nor a high-speed network is available in the community, making algorithm comparison and development difficult. Inspired by the growth of lane detection, we propose a rail database and a row-based rail detection method. In detail, we make several contributions: (i) We present a real-world railway dataset, Rail-DB, with 7432 pairs of images and annotations. The images are collected from different situations in lighting, road structures, and views. The rails are labeled with polylines, and the images are categorized into nine scenes. The Rail-DB is expected to facilitate the improvement of rail detection algorithms. (ii) We present an efficient row-based rail detection method, Rail-Net, containing a lightweight convolutional backbone and an anchor classifier. Specifically, we formulate the process of rail detection as a row-based selecting problem. This strategy reduces the computational cost compared to alternative segmentation methods. (iii) We evaluate the Rail-Net on Rail-DB with extensive experiments, including cross-scene settings and network backbones ranging from ResNet to Vision Transformers. Our method achieves promising performance in terms of both speed and accuracy. Notably, a lightweight version could achieve 92.77\% accuracy and 312 frames per second. The Rail-Net outperforms the traditional method by 50.65\% and the segmentation one by 5.86\%.
+Rail detection, essential for railroad anomaly detection, aims to identify the railroad region in video frames. Although various studies on rail detection exist, neither an open benchmark nor a high-speed network is available in the community, making algorithm comparison and development difficult. Inspired by the growth of lane detection, we propose a rail database and a row-based rail detection method. 
 
 # Rail-DB
-First, considering existing rail database \cite{wang2019railnet} is unavailable for further research, we construct the Rail-DB and make it publicly available for the community. To build the Rail-DB, we first obtain videos from real-world trains in different conditions and collect 7432 images. Figure \ref{fig: image samples} illustrates some examples on the Rail-DB. The lighting covers sun, rain, and night. The structures range in curve, slope, cross, and line. The views include near and far. Experiments show that images with diverse environments contribute to the algorithm's robustness. Then, we label rails with polylines through coarse and refinement stages to gather high-quality annotations. At the coarse stage, eight annotators use \textit{LabelMe}\footnote{https://github.com/CSAILVision/LabelMeAnnotationTool} to label every rail of an image. However, non-primary rails and railway tails are occasionally missed in the coarse annotations. Therefore, we need a refinement stage to correct the incomplete and inaccurate labels. An expert checks the above annotations and refines them. Besides, we annotate the images with nine scene properties based on backgrounds. Finally, we get the Rail-DB, a middle size, background-rich, and polyline annotated dataset, which will is public available \url{here}{}.
+We present a real-world railway dataset, Rail-DB, with 7432 pairs of images and annotations. The images are collected from different situations in lighting, road structures, and views. The rails are labeled with polylines, and the images are categorized into nine scenes. The Rail-DB is expected to facilitate the improvement of rail detection algorithms. The collection pipeline is shown in Fig.1.
+
+<p align="center">
+  <img src="./images/dataset_collection.png" />
+  Fig.1 - image collection.
+</p>
+<!-- ![image](./images/dataset_collection.png) -->
 
 ## dataset download
 
 # Rail-Net
-Second, we propose the Rail-Net as a rail detection benchmark. Existing works mainly focus on segmentation algorithm \cite{wang2019railnet, 2015Material}, which is computationally inefficient. Recently, row-based methods are widespread in efficient lane detection \cite{Tian2018Lane, yoo2020end, qin2020ultra,  tabelini2021keep}, which inspires us to extend them to rail detection. The segmentation methods translate the labeled polylines to a multivalued mask. In contrast, we adopt anchors and griddings to further turn the mask into a series of horizontal locations. The locations are intersections between anchors and polylines, which is shrunk into class units by further gridding.Therefore, the process of rail detection can be treated as a row-based selecting problem. We produce a lower prediction number than outputting a segmentation map. Experiments suggest that the row-based selecting algorithm runs faster than existing segmentation methods while keeping higher accuracy.
+We present an efficient row-based rail detection method, Rail-Net, containing a lightweight convolutional backbone and an anchor classifier. Specifically, we formulate the process of rail detection as a row-based selecting problem. This strategy reduces the computational cost compared to alternative segmentation methods.
+
+<p align="center">
+  <img src="./images/railnet_arch.png" />
+  Fig.2 - Rail-Net archetecture.
+</p>
 
 ## train scripts
 
@@ -15,6 +26,12 @@ Second, we propose the Rail-Net as a rail detection benchmark. Existing works ma
 ## test scripts
 
 # Experiments
-Third, we perform extensive experiments on Rail-DB and Rail-Net. The results show that our method achieves promising performance in terms of both speed and accuracy. Notably, a lightweight version could even achieve 92.77\% accuracy and 312 frames per second. The Rail-Net outperforms the traditional method by 50.65\% and the segmentation one by 5.86\%. Besides, ablation studies, including cross-scene setting, griding number, metric threshold, rail and lane comparison, and various backbones, justify the effectiveness of every setting. Further, we find the cross structure and the cross-scene adaptation are confusing cases.
+We evaluate the Rail-Net on Rail-DB with extensive experiments, including cross-scene settings and network backbones ranging from ResNet to Vision Transformers. Our method achieves promising performance in terms of both speed and accuracy. Notably, a lightweight version could achieve 92.77\% accuracy and 312 frames per second. The Rail-Net outperforms the traditional method by 50.65\% and the segmentation one by 5.86\%.
+
+<p align="center">
+  <img src="./images/results_comparison.png" />
+  Fig.3 - Quantitative and qualitative results.
+</p>
+
 
 ## pretrained models
