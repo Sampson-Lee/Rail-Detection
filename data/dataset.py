@@ -77,6 +77,7 @@ class LaneClsDataset(torch.utils.data.Dataset):
         random.shuffle(rd_ind)
         self.pd_reader = pd_reader.reindex(index=rd_ind)
         print('we have totally {} images'.format(len(self.pd_reader['name'])))
+        # embed()
 
         if self.mode == 'train':
             len_image = int(len(self.pd_reader)*0.8)
@@ -140,11 +141,11 @@ class LaneClsDataset(torch.utils.data.Dataset):
 
         # get the positions of intersactions between polyline and rowline (num_lanes, num_rows)
         inter_label = self.get_intersaction(label)
-        # print(inter_label.shape)
+        print(inter_label.shape)
 
         # get the coordinates of lanes at row anchors (num_rows, num_lanes)
         grid_label = self.get_gridding(inter_label, self.griding_num, label.size[0])
-        # print(grid_label.shape)
+        print(grid_label.shape)
 
         if self.simu_transform:
             img, label = self.simu_transform(img, label)
