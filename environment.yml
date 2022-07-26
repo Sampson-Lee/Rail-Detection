@@ -1,4 +1,4 @@
-name: lxp
+name: rail
 channels:
   - http://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free
   - conda-forge

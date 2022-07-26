@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# Railroad-Detection
-Rail-DB and Rail-Net
-=======
 # Railroad-Detection
 Rail detection, essential for railroad anomaly detection, aims to identify the railroad region in video frames. Although various studies on rail detection exist, neither an open benchmark nor a high-speed network is available in the community, making algorithm comparison and development difficult. Inspired by the growth of lane detection, we propose a rail database and a row-based rail detection method. 
 
@@ -28,6 +24,11 @@ We present an efficient row-based rail detection method, Rail-Net, containing a 
 
 :star:train scripts
 
+```sh
+git clone git@github.com:Sampson-Lee/Rail-Detection.git
+conda env create -f environment.yml
+bash launch_training.sh # after specify data locations in configs/raildb.py
+```
 
 :star:test scripts
 
@@ -41,4 +42,3 @@ We evaluate the Rail-Net on Rail-DB with extensive experiments, including cross-
 
 
 :star:pretrained models
->>>>>>> d175ba8a15a74cff363e8da114147f44311bfb42
