@@ -9,21 +9,52 @@ import csv
 import pandas as pd
 
 import data.mytransforms as mytransforms
-from data.constant import raildb_row_anchor
 # import mytransforms as mytransforms
-# from constant import raildb_row_anchor
 
 import torchvision.transforms as transforms
 from IPython import embed
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
+raildb_row_anchor = [200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300, 310, 320,
+                     330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450,
+                     460, 470, 480, 490, 500, 510, 520, 530, 540, 550, 560, 570, 580,
+                     590, 600, 610, 620, 630, 640, 650, 660, 670, 680, 690, 700, 710]
+
 def loader_func(path):
     return Image.open(path).resize((1280,720), Image.NEAREST)
 
-class LaneTestDataset(torch.utils.data.Dataset):
+def inter_2_grid(intersactions, num_cols, w):
+    num_rail, num_row = intersactions.shape
+    col_sample = np.linspace(0, w - 1, num_cols)
+
+    to_pts = np.zeros((num_row, num_rail))
+    for i in range(num_rail):
+        pti = intersactions[i, :]
+        to_pts[:,i] = np.asarray(
+            [int(pt // (col_sample[1] - col_sample[0])) if pt != -1 else num_cols for pt in pti])
+    return to_pts.astype(int)
+
+def mask_2_inter(mask, row_anchor, num_rails=4):
+
+    all_idx = np.zeros((num_rails, len(row_anchor)))
+
+    for i, r in enumerate(row_anchor):
+        label_r = np.asarray(mask)[int(round(r))]
+        for rail_idx in range(1, num_rails + 1):
+            pos = np.where(label_r == rail_idx)[0]
+            # pos = np.where(label_r == color_list[rail_idx])[0]
+            if len(pos) == 0:
+                all_idx[rail_idx - 1, i] = -1
+                continue
+            pos = np.mean(pos)
+            all_idx[rail_idx - 1, i] = pos
+
+    return all_idx
+
+class RailTestDataset(torch.utils.data.Dataset):
     def __init__(self, data_path, meta_file, img_transform = None, type='all'):
-        super(LaneTestDataset, self).__init__()
+        super(RailTestDataset, self).__init__()
         self.data_path = data_path
         self.meta_file = meta_file
         self.img_transform = img_transform
@@ -58,16 +89,16 @@ class LaneTestDataset(torch.utils.data.Dataset):
         return len(self.img_list)
 
 
-class LaneClsDataset(torch.utils.data.Dataset):
+class RailClsDataset(torch.utils.data.Dataset):
     def __init__(self, data_path, meta_file, img_transform = None, target_transform = None, simu_transform = None, 
-                    griding_num = 100, row_anchor = None, num_lanes = 4, mode='train', type='all'):
-        super(LaneClsDataset, self).__init__()
+                    griding_num = 100, row_anchor = None, num_rails = 4, mode='train', type='all'):
+        super(RailClsDataset, self).__init__()
         self.img_transform = img_transform
         self.target_transform = target_transform
         self.simu_transform = simu_transform
         self.data_path = data_path
         self.griding_num = griding_num
-        self.num_lanes = num_lanes
+        self.num_rails = num_rails
         self.mode = mode
         self.type = type
 
@@ -98,33 +129,6 @@ class LaneClsDataset(torch.utils.data.Dataset):
         self.row_anchor = row_anchor
         self.row_anchor.sort()
 
-    def get_gridding(self, inter_label, num_cols, w):
-        num_lane, num_row = inter_label.shape
-        col_sample = np.linspace(0, w - 1, num_cols)
-
-        to_pts = np.zeros((num_row, num_lane))
-        for i in range(num_lane):
-            pti = inter_label[i, :]
-            to_pts[:,i] = np.asarray(
-                [int(pt // (col_sample[1] - col_sample[0])) if pt != -1 else num_cols for pt in pti])
-        return to_pts.astype(int)
-
-    def get_intersaction(self, label):
-
-        all_idx = np.zeros((self.num_lanes, len(self.row_anchor)))
-
-        for i, r in enumerate(self.row_anchor):
-            label_r = np.asarray(label)[int(round(r))]
-            for lane_idx in range(1, self.num_lanes + 1):
-                pos = np.where(label_r == lane_idx)[0]
-                if len(pos) == 0:
-                    all_idx[lane_idx - 1, i] = -1
-                    continue
-                pos = np.mean(pos)
-                all_idx[lane_idx - 1, i] = pos
-
-        return all_idx
-
     def __getitem__(self, index):
         # parse label and image name
         img_name = self.img_list[index]
@@ -139,20 +143,21 @@ class LaneClsDataset(torch.utils.data.Dataset):
         img_path = os.path.join(self.data_path, jpeg_name)
         img = loader_func(img_path)
 
-        # get the positions of intersactions between polyline and rowline (num_lanes, num_rows)
-        inter_label = self.get_intersaction(label)
+        # get the positions of intersactions between polyline and rowline (num_rails, num_rows)
+        inter_label = mask_2_inter(label, self.row_anchor, num_rails=4)
         # print(inter_label.shape)
 
-        # get the coordinates of lanes at row anchors (num_rows, num_lanes)
-        grid_label = self.get_gridding(inter_label, self.griding_num, label.size[0])
+        # get the coordinates of rails at row anchors (num_rows, num_rails)
+        grid_label = inter_2_grid(inter_label, self.griding_num, label.size[0])
         # print(grid_label.shape)
 
         if self.simu_transform:
             img, label = self.simu_transform(img, label)
         img = self.img_transform(img)
         seg_label = self.target_transform(label)
-        seg_label[seg_label>self.num_lanes] = 0
-        assert (seg_label >= 0).all() & (seg_label < self.num_lanes+1).all()
+
+        seg_label[seg_label>self.num_rails] = 0
+        assert (seg_label >= 0).all() & (seg_label < self.num_rails+1).all()
 
         return img, grid_label, inter_label, seg_label, jpeg_name
 
@@ -178,8 +183,8 @@ if __name__ == "__main__":
         # mytransforms.RandomLROffsetLABEL(200)
     ])
 
-    all_dataset = LaneClsDataset(data_path, meta_file, img_transform = img_transform, target_transform = target_transform, 
-                    simu_transform = simu_transform, griding_num=56, row_anchor = raildb_row_anchor, num_lanes=4, mode='val', type='far')
+    all_dataset = RailClsDataset(data_path, meta_file, img_transform = img_transform, target_transform = target_transform, 
+                    simu_transform = simu_transform, griding_num=56, row_anchor = raildb_row_anchor, num_rails=4, mode='val', type='far')
 
     all_loader = torch.utils.data.DataLoader(all_dataset, batch_size=1, shuffle=False, num_workers=1)
 

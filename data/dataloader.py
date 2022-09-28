@@ -3,10 +3,10 @@ import numpy as np
 
 import torchvision.transforms as transforms
 import data.mytransforms as mytransforms
-from data.constant import raildb_row_anchor
-from data.dataset import LaneClsDataset, LaneTestDataset
+from data.dataset import raildb_row_anchor
+from data.dataset import RailClsDataset, RailTestDataset
 
-def get_train_loader(batch_size, data_root, griding_num=56, distributed=True, num_lanes=4, mode='train', type='all'):
+def get_train_loader(batch_size, data_root, griding_num=56, distributed=True, num_rails=4, mode='train', type='all'):
     target_transform = transforms.Compose([
         mytransforms.FreeScaleMask((288, 800)),
         mytransforms.MaskToTensor(),
@@ -27,7 +27,7 @@ def get_train_loader(batch_size, data_root, griding_num=56, distributed=True, nu
     else:
         simu_transform = None
 
-    train_dataset = LaneClsDataset(
+    train_dataset = RailClsDataset(
                         data_root,
                         data_root+'meta.csv',
                         img_transform = img_transform, 
@@ -35,7 +35,7 @@ def get_train_loader(batch_size, data_root, griding_num=56, distributed=True, nu
                         simu_transform = simu_transform, 
                         griding_num = griding_num, 
                         row_anchor = raildb_row_anchor, 
-                        num_lanes = num_lanes,
+                        num_rails = num_rails,
                         mode = mode,
                         type = type,
                         )

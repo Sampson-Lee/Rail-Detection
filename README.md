@@ -10,7 +10,7 @@ We present a real-world railway dataset, Rail-DB, with 7432 pairs of images and 
 </p>
 <!-- ![image](./images/dataset_collection.png) -->
 
-:star: You can download the dataset by sending an email to li.xin.peng@outlook.com. You are supposed to download an agreement form, fill the information and sign in, send the scanned file to the email. An email with dataset download link will come to you. 
+:star: You can download the dataset by filling out this [form](https://docs.google.com/forms/d/e/1FAIpQLSemB6S2Oai4oC_mI2jxYb-KVfOVflmqY1scxEUtV24_-YP0aQ/viewform). An email with dataset download link will come to you. 
 
 
 
@@ -22,15 +22,21 @@ We present an efficient row-based rail detection method, Rail-Net, containing a 
   Fig.2 - Rail-Net archetecture.
 </p>
 
-:star:train scripts
+:star: train scripts
 
 ```sh
 git clone git@github.com:Sampson-Lee/Rail-Detection.git
-conda env create -f environment.yml
-bash launch_training.sh # after specify data locations in configs/raildb.py
+conda env create -f environment.yaml # then install your own torch
+bash launch_training.sh # after specify configs/raildb.py
 ```
 
-:star:test scripts
+<!-- :star:other scripts
+
+We also implement hand-crafted and segmentation methods for rail detection in this resposity. 
+
+In train.py, we can show rail detection results by setting savefig in validate function.  -->
+
+
 
 # Experiments
 We evaluate the Rail-Net on Rail-DB with extensive experiments, including cross-scene settings and network backbones ranging from ResNet to Vision Transformers. Our method achieves promising performance in terms of both speed and accuracy. Notably, a lightweight version could achieve 92.77\% accuracy and 312 frames per second. The Rail-Net outperforms the traditional method by 50.65\% and the segmentation one by 5.86\%.
@@ -41,4 +47,14 @@ We evaluate the Rail-Net on Rail-DB with extensive experiments, including cross-
 </p>
 
 
-:star:pretrained models
+:star: get pretrained models from [here](https://drive.google.com/file/d/1vd8rbUEkeoHpGP4QR0dc6LrS2un2FAF3/view?usp=sharing) and deploy in real environments
+```sh
+cd utils
+python deploy.py # after overide the image or video in this file
+```
+
+We find the pretrained model fails to generalize to many real situations (e.g., example.mp4). 😅 Therefore, we will mainly address this problem in the future work.
+
+# Citation
+
+Do not forget to cite our work appropriately.
