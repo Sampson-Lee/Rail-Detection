@@ -57,4 +57,13 @@ We find the pretrained model fails to generalize to many real situations (e.g., 
 
 # Citation
 
-Do not forget to cite our work appropriately. Rail Detection: An Efficient Row-based Network and A New Benchmark. (ACMMM 2022 Poster)
+Do not forget to cite our work appropriately. 
+```
+@inproceedings{li2022rail,
+  title={Rail Detection: An Efficient Row-based Network and a New Benchmark},
+  author={Li, Xinpeng and Peng, Xiaojiang},
+  booktitle={Proceedings of the 30th ACM International Conference on Multimedia},
+  pages={6455--6463},
+  year={2022}
+}
+```
