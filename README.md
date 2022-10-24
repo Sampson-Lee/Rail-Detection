@@ -10,7 +10,7 @@ We present a real-world railway dataset, Rail-DB, with 7432 pairs of images and 
 </p>
 <!-- ![image](./images/dataset_collection.png) -->
 
-:star: You can download the dataset by filling out this **[form](https://docs.google.com/forms/d/e/1FAIpQLSemB6S2Oai4oC_mI2jxYb-KVfOVflmqY1scxEUtV24_-YP0aQ/viewform)**. An email with dataset download link will come to you. 
+:star: **DATASET** You can download the dataset by filling out this **[form](https://docs.google.com/forms/d/e/1FAIpQLSemB6S2Oai4oC_mI2jxYb-KVfOVflmqY1scxEUtV24_-YP0aQ/viewform)**. An email with dataset download link will come to you. 
 
 
 
@@ -22,7 +22,7 @@ We present an efficient row-based rail detection method, Rail-Net, containing a 
   Fig.2 - Rail-Net archetecture.
 </p>
 
-:star: train scripts
+:star: **train scripts**
 
 ```sh
 git clone git@github.com:Sampson-Lee/Rail-Detection.git
@@ -47,7 +47,7 @@ We evaluate the Rail-Net on Rail-DB with extensive experiments, including cross-
 </p>
 
 
-:star: get pretrained models from **[here](https://drive.google.com/file/d/1vd8rbUEkeoHpGP4QR0dc6LrS2un2FAF3/view?usp=sharing)** and deploy in real environments
+:star: **DEPLOY** get pretrained models from **[here](https://drive.google.com/file/d/1vd8rbUEkeoHpGP4QR0dc6LrS2un2FAF3/view?usp=sharing)** and deploy in real environments
 ```sh
 cd utils
 python deploy.py # after overide the image or video in this file
